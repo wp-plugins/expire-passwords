@@ -3,9 +3,9 @@ Contributors:      fjarrett
 Tags:              admin, login, membership, passwords, profile, security, users
 Requires at least: 3.7
 Tested up to:      4.2
-Stable tag:        0.1.0
-License:           GPLv2 or later
-License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+Stable tag:        0.2.0
+License:           GPLv3
+License URI:       https://www.gnu.org/licenses/gpl-3.0.html
 
 Require certain users to change their passwords on a regular basis.
 
@@ -25,8 +25,16 @@ In the plugin settings you can set the maximum number of days users are allowed 
 
 1. Configure which user roles should be required to regularly reset their passwords and how often.
 2. Users with expired passwords are redirected to the password reset screen upon sign in.
+3. Users are not permitted to use the same password two times in a row during reset.
 
 == Changelog ==
+
+= 0.2.0 - April 29, 2015 =
+
+* New: Disallow using the same password as before on reset ([#1](https://github.com/fjarrett/expire-passwords/issues/1))
+* Tweak: Use default if limit is set to greater than 365 days
+
+Props [@fjarrett](https://github.com/fjarrett)
 
 = 0.1.0 - April 28, 2015 =
 
