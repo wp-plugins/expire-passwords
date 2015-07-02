@@ -2,12 +2,18 @@
 /**
  * Plugin Name: Expire Passwords
  * Description: Require certain users to change their passwords on a regular basis.
- * Version: 0.2.0
+ * Version: 0.2.1
  * Author: Frankie Jarrett
  * Author URI: http://frankiejarrett.com
- * License: GPLv2+
+ * License: GPLv3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: expire-passwords
+ * Domain Path: /languages
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class Expire_Passwords {
 
@@ -16,7 +22,7 @@ class Expire_Passwords {
 	 *
 	 * @const string
 	 */
-	const VERSION = '0.2.0';
+	const VERSION = '0.2.1';
 
 	/**
 	 * Generic prefix/key identifier
@@ -115,15 +121,16 @@ class Expire_Passwords {
 	/**
 	 * Save password reset user meta to the database
 	 *
-	 * @action password_reset
 	 * @action user_register
+	 * @action password_reset
 	 *
-	 * @param int $user_id (optional)
+	 * @param WP_User|int $user (optional)
 	 *
 	 * @return void
 	 */
-	public static function save_user_meta( $user_id = null ) {
-		$user_id = is_int( $user_id ) ? $user_id : ( isset( self::$user->ID ) ? self::$user->ID : null );
+	public static function save_user_meta( $user = null ) {
+		$user_id = is_int( $user ) ? $user : ( isset( $user->ID ) ? $user->ID : ( isset( self::$user->ID ) ? self::$user->ID : null ) );
+		$user_id = absint( $user_id );
 
 		if ( ! get_userdata( $user_id ) ) {
 			return;
@@ -148,6 +155,10 @@ class Expire_Passwords {
 	/**
 	 * Return the password age limit setting
 	 *
+	 * A hard limit of 365 days is built into this plugin. If
+	 * you want to require passwords to be reset less than once
+	 * per year then you probably don't need this plugin. :-)
+	 *
 	 * @return int
 	 */
 	public static function get_limit() {
@@ -166,6 +177,10 @@ class Expire_Passwords {
 		$options = get_option( self::PREFIX . '_settings' );
 
 		if ( empty( $options ) ) {
+			if ( ! function_exists( 'get_editable_roles' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/user.php';
+			}
+
 			$roles = get_editable_roles();
 
 			// Return all roles except admins by default if not set
@@ -189,6 +204,7 @@ class Expire_Passwords {
 	 */
 	public static function get_expiration( $user_id = null, $date_format = 'U' ) {
 		$user_id = is_int( $user_id ) ? $user_id : ( isset( self::$user->ID ) ? self::$user->ID : null );
+		$user_id = absint( $user_id );
 
 		if ( ! get_userdata( $user_id ) ) {
 			return new WP_Error( 'user_does_not_exist', esc_html__( 'User does not exist.', 'expire-passwords' ) );
@@ -237,6 +253,7 @@ class Expire_Passwords {
 	 */
 	public static function is_password_expired( $user_id = null ) {
 		$user_id = is_int( $user_id ) ? $user_id : ( isset( self::$user->ID ) ? self::$user->ID : null );
+		$user_id = absint( $user_id );
 
 		if ( ! get_userdata( $user_id ) ) {
 			return new WP_Error( 'user_does_not_exist', esc_html__( 'User does not exist.', 'expire-passwords' ) );
